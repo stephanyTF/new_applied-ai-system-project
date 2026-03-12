@@ -1,7 +1,9 @@
 import streamlit as st
 
-
 from pawpal_system import Pet, Owner, PetCareTask, Scheduler
+
+from datetime import date as Date
+
 
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
@@ -49,6 +51,8 @@ st.divider()
 st.subheader("Quick Demo Inputs (UI only)")
 
 owner_name = st.text_input("Owner name", placeholder="Enter your name")
+time_available = st.number_input("Time available (minutes)", min_value=1, max_value=1440, placeholder="e.g. 180")
+date = st.date_input("Date", value=Date.today())
 
 if st.button("Add New Owner"):
     if owner_name.strip():
@@ -93,9 +97,7 @@ if st.button("Add task"):
     task = PetCareTask(task_title,int(duration),priority,st.session_state.pet)
     st.session_state.tasks.append(task)
 
-# if st.session_state.tasks:
-#     st.write("Current tasks:")
-#     st.table(st.session_state.tasks)
+
 if st.session_state.tasks:
     st.write("Current tasks:")
     task_rows = [
@@ -116,18 +118,40 @@ else:
 st.divider()
 
 st.subheader("Build Schedule")
-st.caption("This button should call your scheduling logic once you implement it.")
+#st.caption("This button should call your scheduling logic once you implement it.")
 
+# if st.button("Generate schedule"):
+#     #implement scheduling logic here and display the generated schedule
+#     st.info("Pet Care Schedule Generated! \n")
+#     plan = Scheduler(st.session_state.owner,st.session_state.pet, st.session_state.tasks)
+#     for item in plan.tasks:
+#         st.write(item.generate_plan())
 if st.button("Generate schedule"):
-    st.warning(
-        "Not implemented yet. Next step: create your scheduling logic (classes/functions) and call it here."
-    )
-    st.markdown(
-        """
-Suggested approach:
-1. Design your UML (draft).
-2. Create class stubs (no logic).
-3. Implement scheduling behavior.
-4. Connect your scheduler here and display results.
-"""
-    )
+    if "owner" not in st.session_state or not st.session_state.tasks:
+        st.warning("Please add an owner and at least one task first.")
+    else:
+        time_available = st.session_state.get("time_available", 120)
+        scheduler = Scheduler(st.session_state.owner, time_available)
+
+        for task in st.session_state.tasks:
+            scheduler.add_task(task)
+
+        plan = scheduler.generate_plan()
+
+        total_task_time = sum(task.duration for task in plan)
+
+        format_minutes = lambda m: f"{m} min" if m < 60 else f"{m//60} hr {m%60} min" if m % 60 else f"{m//60} hr"
+        
+
+
+        st.info(f"Schedule for {st.session_state.owner.get_name()} — {scheduler.get_time_available_display()} available — Task Estimate Time: {format_minutes(total_task_time)}")
+        plan_rows = [
+            {
+                "Pet": task.pet.get_name(),
+                "Description": task.description,
+                "Duration": task.get_duration_display(),
+                "Priority": task.priority,
+            }
+            for task in plan
+        ]
+        st.table(plan_rows)
