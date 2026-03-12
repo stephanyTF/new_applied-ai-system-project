@@ -1,6 +1,17 @@
 from datetime import date as Date
 
 
+def format_minutes(minutes):
+    hours = minutes // 60
+    mins = minutes % 60
+    if hours and mins:
+        return f"{hours}h {mins}m"
+    elif hours:
+        return f"{hours}h"
+    else:
+        return f"{mins}m"
+
+
 class Pet:
     def __init__(self, name, type):
         self.name = name
@@ -17,6 +28,8 @@ class Owner:
     def __init__(self, name):
         self.name = name
         self.pets = []
+
+   
 
     def get_name(self):
         return self.name
@@ -45,6 +58,9 @@ class PetCareTask:
     def set_duration(self, duration):
         self.duration = duration
 
+    def get_duration_display(self):
+        return format_minutes(self.duration)
+
 
 class Scheduler:
     def __init__(self, owner, time_available, date=None):
@@ -52,6 +68,9 @@ class Scheduler:
         self.time_available = time_available
         self.date = date or Date.today()
         self.tasks = []
+
+    def get_time_available_display(self):
+        return format_minutes(self.time_available)
 
     def add_task(self, task):
         self.tasks.append(task)
