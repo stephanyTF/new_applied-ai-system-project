@@ -98,7 +98,7 @@ with row1_col3:
 
 row2_col1, row2_col2, row2_col3 = st.columns(3)
 with row2_col1:
-    priority = st.selectbox("Priority", ["low", "medium", "high"])
+    priority = st.selectbox("Priority", ["low", "med", "high"])
 with row2_col2:
     task_date = st.date_input("Date", value=Date.today())
 with row2_col3:
@@ -114,13 +114,14 @@ if st.button("Add task"):
             None
         )
         if conflict:
-            st.warning(
-                f"Time conflict: '{conflict.description}' is already scheduled at "
+            st.error(
+                f"Task not added — time conflict: '{conflict.description}' is already scheduled at "
                 f"{task_time.strftime('%I:%M %p')} on {task_date.strftime('%b %d, %Y')}. "
-                f"Please choose a different time."
+                f"Please choose a different start time."
             )
         else:
             st.session_state.tasks.append(new_task)
+            st.success(f"Task '{new_task.description}' added.")
     else:
         st.warning("Please add a pet before creating tasks.")
 

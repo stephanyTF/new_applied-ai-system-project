@@ -80,14 +80,24 @@ class Scheduler:
         task.set_status("done")
 
     def generate_plan(self):
-        sorted_tasks = sorted(self.tasks, key=lambda t: (t.date, t.start_time))
+        priority_rank = {"high": 0, "med": 1, "low": 2}
 
-        daily_used = {}
-        plan = []
-        for task in sorted_tasks:
-            used = daily_used.get(task.date, 0)
-            if used + task.duration <= self.time_available:
-                plan.append(task)
-                daily_used[task.date] = used + task.duration
+        # Group tasks by date
+        days = {}
+        for task in self.tasks:
+            days.setdefault(task.date, []).append(task)
 
-        return plan
+        # Pass 1 — selection: within each day sort by priority then duration (shortest first),
+        # greedily fill the daily budget so high-priority tasks are always chosen first
+        selected = []
+        for day_tasks in days.values():
+            day_tasks.sort(key=lambda t: (priority_rank.get(t.priority, 9), t.duration))
+            used = 0
+            for task in day_tasks:
+                if used + task.duration <= self.time_available:
+                    selected.append(task)
+                    used += task.duration
+
+        # Pass 2 — display: sort selected tasks chronologically by date then start time
+        selected.sort(key=lambda t: (t.date, t.start_time))
+        return selected
