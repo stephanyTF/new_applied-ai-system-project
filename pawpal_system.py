@@ -77,12 +77,14 @@ class Scheduler:
     def mark_done(self, task):
         task.set_status("done")
 
-    def generate_plan(self):
-        priority_order = {"high": 0, "med": 1, "low": 2}
-        sorted_tasks = sorted(
-            self.tasks,
-            key=lambda t: priority_order.get(t.priority, 3)
-        )
+    def generate_plan(self, sort_by="priority"):
+        if sort_by == "duration_asc":
+            sorted_tasks = sorted(self.tasks, key=lambda t: t.duration)
+        elif sort_by == "duration_desc":
+            sorted_tasks = sorted(self.tasks, key=lambda t: t.duration, reverse=True)
+        else:
+            priority_order = {"high": 0, "med": 1, "low": 2}
+            sorted_tasks = sorted(self.tasks, key=lambda t: priority_order.get(t.priority, 3))
 
         plan = []
         time_remaining = self.time_available

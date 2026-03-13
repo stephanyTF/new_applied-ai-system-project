@@ -118,14 +118,9 @@ else:
 st.divider()
 
 st.subheader("Build Schedule")
-#st.caption("This button should call your scheduling logic once you implement it.")
 
-# if st.button("Generate schedule"):
-#     #implement scheduling logic here and display the generated schedule
-#     st.info("Pet Care Schedule Generated! \n")
-#     plan = Scheduler(st.session_state.owner,st.session_state.pet, st.session_state.tasks)
-#     for item in plan.tasks:
-#         st.write(item.generate_plan())
+sort_by = st.selectbox("Sort tasks by", ["priority", "duration_asc", "duration_desc"])
+
 if st.button("Generate schedule"):
     if "owner" not in st.session_state or not st.session_state.tasks:
         st.warning("Please add an owner and at least one task first.")
@@ -136,7 +131,7 @@ if st.button("Generate schedule"):
         for task in st.session_state.tasks:
             scheduler.add_task(task)
 
-        plan = scheduler.generate_plan()
+        plan = scheduler.generate_plan(sort_by=sort_by)
 
         total_task_time = sum(task.duration for task in plan)
 
