@@ -205,5 +205,61 @@ class TestConflictDetection(unittest.TestCase):
         self.assertEqual(conflict.description, "Walk")
 
 
+# ---------------------------------------------------------------------------
+# INTENTIONALLY FAILING TESTS — expose real gaps in the current implementation
+# ---------------------------------------------------------------------------
+class TestKnownGaps(unittest.TestCase):
+
+    def test_high_priority_task_not_dropped_when_budget_is_tight(self):
+        """
+        FAILS: generate_plan() sorts by time only, not priority.
+        A low-priority task added early can consume the budget and push out a
+        high-priority task added later the same day.
+
+        Expected behaviour: with a 60-min budget, the 'high' priority task
+        should always be included even though it starts later.
+        Current behaviour: first-in-time wins regardless of priority.
+        """
+        pet = Pet("Buddy", "dog")
+        d = Date(2026, 4, 1)
+        low_task  = PetCareTask("Low prio bath",  60, "low",  pet, date=d, start_time=Time(8, 0))
+        high_task = PetCareTask("High prio meds", 30, "high", pet, date=d, start_time=Time(9, 0))
+
+        scheduler = Scheduler(Owner("Alice"), 60)
+        scheduler.add_task(low_task)
+        scheduler.add_task(high_task)
+
+        plan = scheduler.generate_plan()
+        descriptions = [t.description for t in plan]
+
+        # This assertion will FAIL — high_task is excluded because low_task
+        # consumed the full 60-min budget first.
+        self.assertIn("High prio meds", descriptions)
+
+    def test_scheduler_rejects_overlapping_tasks(self):
+        """
+        FAILS: generate_plan() has no overlap detection.
+        Two tasks at the same start time on the same day are both included
+        as long as their combined duration fits the budget.
+
+        Expected behaviour: the second task at the same time should be excluded
+        (or flagged) because it overlaps with the first.
+        Current behaviour: both tasks are included without any conflict check.
+        """
+        pet = Pet("Mochi", "cat")
+        d = Date(2026, 4, 1)
+        t1 = PetCareTask("Feed",  30, "high",   pet, date=d, start_time=Time(9, 0))
+        t2 = PetCareTask("Brush", 30, "medium", pet, date=d, start_time=Time(9, 0))  # same time!
+
+        scheduler = Scheduler(Owner("Alice"), 120)
+        scheduler.add_task(t1)
+        scheduler.add_task(t2)
+
+        plan = scheduler.generate_plan()
+
+        # This assertion will FAIL — both tasks land in the plan despite the clash.
+        self.assertEqual(len(plan), 1, "Only one task should be scheduled at 9:00 AM")
+
+
 if __name__ == "__main__":
     unittest.main()
