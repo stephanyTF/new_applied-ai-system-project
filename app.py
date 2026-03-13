@@ -108,8 +108,19 @@ with row2_col3:
 if st.button("Add task"):
     selected_pet = next((p for p in st.session_state.pets if p.get_name() == selected_pet_name), None)
     if selected_pet:
-        task = PetCareTask(task_title, int(duration), priority, selected_pet, date=task_date, start_time=task_time)
-        st.session_state.tasks.append(task)
+        new_task = PetCareTask(task_title, int(duration), priority, selected_pet, date=task_date, start_time=task_time)
+        conflict = next(
+            (t for t in st.session_state.tasks if t.date == task_date and t.start_time == task_time),
+            None
+        )
+        if conflict:
+            st.warning(
+                f"Time conflict: '{conflict.description}' is already scheduled at "
+                f"{task_time.strftime('%I:%M %p')} on {task_date.strftime('%b %d, %Y')}. "
+                f"Please choose a different time."
+            )
+        else:
+            st.session_state.tasks.append(new_task)
     else:
         st.warning("Please add a pet before creating tasks.")
 
