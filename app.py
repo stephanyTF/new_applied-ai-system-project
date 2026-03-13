@@ -51,7 +51,7 @@ st.divider()
 st.subheader("Quick Demo Inputs (UI only)")
 
 owner_name = st.text_input("Owner name", placeholder="Enter your name")
-time_available = st.number_input("Time available (minutes)", min_value=1, max_value=1440, placeholder="e.g. 180")
+time_available = st.number_input("Time available per day (minutes)", min_value=1, max_value=1440, placeholder="e.g. 180")
 
 if st.button("Add New Owner"):
     if owner_name.strip():
@@ -87,24 +87,28 @@ st.caption("Add a few tasks. In your final version, these should feed into your 
 if "tasks" not in st.session_state:
     st.session_state.tasks = []
 
-col1, col2, col3, col4, col5 = st.columns(5)
-
-with col1:
+row1_col1, row1_col2, row1_col3 = st.columns(3)
+with row1_col1:
     pet_options = [p.get_name() for p in st.session_state.pets]
     selected_pet_name = st.selectbox("Pet", pet_options if pet_options else ["—"])
-with col2:
+with row1_col2:
     task_title = st.text_input("Task title", placeholder="e.g. Feed Buddy")
-with col3:
+with row1_col3:
     duration = st.number_input("Duration (minutes)", min_value=1, max_value=240, placeholder="e.g. 15")
-with col4:
-    priority = st.selectbox("Priority", ["low", "medium", "high"], placeholder="Select priority")
-with col5:
+
+row2_col1, row2_col2, row2_col3 = st.columns(3)
+with row2_col1:
+    priority = st.selectbox("Priority", ["low", "medium", "high"])
+with row2_col2:
     task_date = st.date_input("Date", value=Date.today())
+with row2_col3:
+    from datetime import time as Time
+    task_time = st.time_input("Start time", value=Time(8, 0))
 
 if st.button("Add task"):
     selected_pet = next((p for p in st.session_state.pets if p.get_name() == selected_pet_name), None)
     if selected_pet:
-        task = PetCareTask(task_title, int(duration), priority, selected_pet, date=task_date)
+        task = PetCareTask(task_title, int(duration), priority, selected_pet, date=task_date, start_time=task_time)
         st.session_state.tasks.append(task)
     else:
         st.warning("Please add a pet before creating tasks.")
@@ -115,6 +119,7 @@ if st.session_state.tasks:
     task_rows = [
         {
             "Date": task.date.strftime("%Y-%m-%d"),
+            "Time": task.start_time.strftime("%I:%M %p"),
             "Pet": task.pet.get_name(),
             "Description": task.description,
             "Duration": task.get_duration_display(),
@@ -132,7 +137,8 @@ st.divider()
 
 st.subheader("Build Schedule")
 
-sort_by = st.selectbox("Sort tasks by", ["priority", "duration_asc", "duration_desc"])
+all_pet_names = [p.get_name() for p in st.session_state.pets]
+filter_pets = st.multiselect("Filter by pet", all_pet_names, default=all_pet_names)
 
 if st.button("Generate schedule"):
     if "owner" not in st.session_state or not st.session_state.tasks:
@@ -144,34 +150,37 @@ if st.button("Generate schedule"):
         for task in st.session_state.tasks:
             scheduler.add_task(task)
 
-        plan = scheduler.generate_plan(sort_by=sort_by)
+        plan = scheduler.generate_plan()
+        visible_plan = [t for t in plan if t.pet.get_name() in filter_pets]
 
-        total_task_time = sum(task.duration for task in plan)
+        total_task_time = sum(task.duration for task in visible_plan)
 
         format_minutes = lambda m: f"{m} min" if m < 60 else f"{m//60} hr {m%60} min" if m % 60 else f"{m//60} hr"
-        
 
-
-        st.info(f"Schedule for {st.session_state.owner.get_name()} — {scheduler.get_time_available_display()} available — Task Estimate Time: {format_minutes(total_task_time)}")
+        st.info(f"Schedule for {st.session_state.owner.get_name()} — {scheduler.get_time_available_display()} available per day — Total scheduled: {format_minutes(total_task_time)}")
         plan_rows = [
             {
+                "Date": task.date.strftime("%Y-%m-%d"),
+                "Time": task.start_time.strftime("%I:%M %p"),
                 "Pet": task.pet.get_name(),
                 "Description": task.description,
                 "Duration": task.get_duration_display(),
                 "Priority": task.priority,
             }
-            for task in plan
+            for task in visible_plan
         ]
         st.table(plan_rows)
 
         excluded = [t for t in st.session_state.tasks if t not in plan]
         if excluded:
             st.warning(
-                f"{len(excluded)} task(s) were excluded because they couldn't fit within "
-                f"the available time ({scheduler.get_time_available_display()}):"
+                f"{len(excluded)} task(s) were excluded because they exceeded the daily time budget "
+                f"({scheduler.get_time_available_display()}/day):"
             )
             excluded_rows = [
                 {
+                    "Date": t.date.strftime("%Y-%m-%d"),
+                    "Time": t.start_time.strftime("%I:%M %p"),
                     "Pet": t.pet.get_name(),
                     "Description": t.description,
                     "Duration": t.get_duration_display(),

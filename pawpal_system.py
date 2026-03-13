@@ -1,4 +1,4 @@
-from datetime import date as Date
+from datetime import date as Date, time as Time
 
 
 def format_minutes(minutes):
@@ -41,13 +41,14 @@ class Owner:
 
 
 class PetCareTask:
-    def __init__(self, description, duration, priority, pet, date=None):
+    def __init__(self, description, duration, priority, pet, date=None, start_time=None):
         self.description = description
         self.duration = duration
         self.priority = priority
         self.status = "not started"
         self.pet = pet
         self.date = date or Date.today()
+        self.start_time = start_time or Time(8, 0)
 
     def set_priority(self, priority):
         self.priority = priority
@@ -78,20 +79,15 @@ class Scheduler:
     def mark_done(self, task):
         task.set_status("done")
 
-    def generate_plan(self, sort_by="priority"):
-        if sort_by == "duration_asc":
-            sorted_tasks = sorted(self.tasks, key=lambda t: t.duration)
-        elif sort_by == "duration_desc":
-            sorted_tasks = sorted(self.tasks, key=lambda t: t.duration, reverse=True)
-        else:
-            priority_order = {"high": 0, "med": 1, "low": 2}
-            sorted_tasks = sorted(self.tasks, key=lambda t: priority_order.get(t.priority, 3))
+    def generate_plan(self):
+        sorted_tasks = sorted(self.tasks, key=lambda t: (t.date, t.start_time))
 
+        daily_used = {}
         plan = []
-        time_remaining = self.time_available
         for task in sorted_tasks:
-            if task.duration <= time_remaining:
+            used = daily_used.get(task.date, 0)
+            if used + task.duration <= self.time_available:
                 plan.append(task)
-                time_remaining -= task.duration
+                daily_used[task.date] = used + task.duration
 
         return plan
