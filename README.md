@@ -18,7 +18,7 @@ TFs should:
 
 # Phase 2: Architecture Diagram (Review)
 TFs should:
-- [x]  Create a system diagram: See 
+- [x]  Create a system diagram: See (Pet Task Generator Digram)[]
 - [x] Confirm alignment with code
 - [x] Flag mismatches
 
