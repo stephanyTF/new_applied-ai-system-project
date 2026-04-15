@@ -1,25 +1,26 @@
-# Phase 0: Repo Preparation (Spot Check)
-TFs should:
-Understand expected repo structure
-Set up a new repo with the previous project chosen.
-TFs may skip:
-None
+# Wk 8 Applied AI System: PawPal+ w/ Automatic Pet Task Suggester 
 
-# Phase 1: Functionality Extension (Assign)
+## Phase 0: Repo Preparation (Spot Check)
 TFs should:
-Identify which new AI feature will be added to your project.
-Verify the feature is actually used in logic
-Detect shallow or fake integrations
-Trace data flow end‑to‑end
-New concepts introduced:
-System integration thinking
-Feature authenticity
+ - [x] Understand expected repo structure
+ - [x] Set up a new repo with the previous project chosen. (Module 2 - PawPal+ ) 
+
+
+## Phase 1: Functionality Extension (Assign)
+TFs should:
+- [x] Identify  new AI feature: (Fine-Tuned / Specialized Model) For a pet task scheduler, having the app be able to automatically make suggested tasks based on what type of pet the user enters.
+- [x] Verify the feature is actually used in logic
+- [x] Detect shallow or fake integrations
+- [x] Trace data flow end‑to‑end
+- [x] New concepts introduced:
+- [x] System integration thinking
+- [x] Feature authenticity
 
 # Phase 2: Architecture Diagram (Review)
 TFs should:
-Create a system diagram or at least understand how adding in a new AI feature will fit into your system. 
-Confirm alignment with code
-Flag mismatches
+- [x]  Create a system diagram: See 
+- [x] Confirm alignment with code
+- [x] Flag mismatches
 
 # Phase 3: Documentation (Review)
 TFs should:
