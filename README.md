@@ -14,15 +14,32 @@ The Co-Tasker Agent helps the user create pet tasks faster by automatically sugg
   - If the task is saved in the scheduler, the next task for either the same or next pet is shown
 
 ## Setup Instructions: 
-1. Open the terminal and write ```streamlit run app.py```
+1. Install dependencies: ``` pip install -r requirements.txt ```
+2. Open the terminal and write ```streamlit run app.py```
+3. Run tests on Co-Tasker: ``` pytest test_pawpal.py -v -k "CoTasker" ```
 
-Sample Interactions: Include at least 2-3 examples of inputs and the resulting AI outputs to demonstrate the system is functional.
-Design Decisions: Why you built it this way, and what trade-offs you made.
-Testing Summary: What worked, what didn't, and what you learned.
-Reflection: What this project taught you about AI and problem-solving.
+## Sample Interactions:
+1. Case #1:
+    - User, Kiki adds in their pet cat "Jiji" and chooses to have the Co Tasker generate 3 tasks for them. Kiki accepts the first task "Feed Jiji" while Kiki modifies the time duration of the second task, "Brush Jiji". The last task Kiki rejects because it doesn't apply to Jiji's case. 
+2. Case #2
+   - User, Katie adds in her two dogs, Max and Duke. She generates tasks using the Co Tasker and she reads through the first set of task for Max (accepting and modifying a few) before moving to the tasks generated for Duke. She accepts all three and adds her accepted task into her schedule. 
+
+## Design Decisions: Why you built it this way, and what trade-offs you made.
+ - Reason for Design: The User is able to have the option to initate the task generation by selecting the button below where they added their pets since it make sense with the user flow and helps put the user in control of the task generation while making it more efficient.
+ - Trade-offs: N/A
 
 
-## TF Checklist 
+## Testing Summary:
+- 10/10 test case passed
+- What could be improved:
+    - More robust design: In the case a user adds a new pet after generating suggested task for a previous pet. The Co-Tasker agent may repeat suggesting task for the old pet
+    - Ensure the Co-Tasker is taking into account task timing to prevent overlapping scheduling
+
+## Reflection: What this project taught you about AI and problem-solving.
+- AI is really effiicent in carrying through code implementation but the developer must think critically about design which can only be highlighted through rigorous testing and putting through wide variety of test cases. 
+
+
+# TF Checklist 
 ## Phase 0: Repo Preparation (Spot Check)
 TFs should:
  - [x] Understand expected repo structure
