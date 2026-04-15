@@ -18,29 +18,30 @@ TFs should:
 
 # Phase 2: Architecture Diagram (Review)
 TFs should:
-- [x]  Create a system diagram: See (Pet Task Generator Digram)[]
+- [x]  Create a system diagram: See [Pet Task Generator Digram](assets/pet_task_generation.png)
 - [x] Confirm alignment with code
 - [x] Flag mismatches
 
-# Phase 3: Documentation (Review)
+## Phase 3: Documentation (Review)
 TFs should:
-Understand what is going in the README
+- [x] Understand what is going in the README
 TFs may skip:
 Writing a full README
-Phase 4: Reliability and Testing (Assigned)
+
+## Phase 4: Reliability and Testing (Assigned)
 TFs should:
 Identify what reliability signal is used
 Include at least one way to test or measure its reliability
-Automated tests
-Confidence scoring
-Logging and error handling
-Human evaluation
-Be able to document your findings from your testing.
+- [x] Automated tests
+- [x] Confidence scoring
+- [ ] Logging and error handling
+- [x] Human evaluation
+- [x] Be able to document your findings from your testing.
 
 
-# Phase 5/6: Reflection and Portfolio (Review)
+## Phase 5/6: Reflection and Portfolio (Review)
 TFs should:
-Understand rubric expectations
+- [x] Understand rubric expectations
 TFs may skip:
 Presentation polish
 Portfolio writing
