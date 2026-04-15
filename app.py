@@ -1,8 +1,9 @@
+import os
 import streamlit as st
 
 from pawpal_system import Pet, Owner, PetCareTask, Scheduler
 
-from datetime import date as Date
+from datetime import date as Date, time as Time
 
 
 
@@ -65,7 +66,7 @@ if "owner" in st.session_state:
 
 
 pet_name = st.text_input("Pet name", placeholder="Enter your pet's name")
-species = st.selectbox("Species", ["dog", "cat", "other"])
+species = st.selectbox("Species", ["dog", "cat", "fish", "rabbit", "bird", "hamster", "turtle", "other"])
 
 if "pets" not in st.session_state:
     st.session_state.pets = []
@@ -80,6 +81,113 @@ for p in st.session_state.pets:
     st.success(f"Pet: {p.get_name()} ({p.get_type()})")
 
 
+# ── Co-Tasker: AI Task Suggestions ──────────────────────────────────────────
+st.divider()
+st.subheader("🤖 Co-Tasker: AI Task Suggestions")
+st.caption("Get personalized task suggestions for your pets — one at a time.")
+
+if not st.session_state.pets:
+    st.info("Add at least one pet above to get AI task suggestions.")
+else:
+    if st.button("✨ Generate Task Suggestions", key="co_tasker_generate"):
+        try:
+            with st.spinner("Co-Tasker is thinking..."):
+                from co_tasker import generate_pet_tasks
+                api_key = st.secrets.get("GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY"))
+                suggestions = generate_pet_tasks(st.session_state.pets, api_key=api_key)
+            st.session_state.co_tasker_suggestions = suggestions
+            st.session_state.co_tasker_index = 0
+            st.session_state.co_tasker_stats = {"accepted": 0, "edited": 0, "skipped": 0}
+            st.session_state.co_tasker_editing = False
+        except Exception as e:
+            st.error(f"Co-Tasker error: {e}")
+
+    if "co_tasker_suggestions" in st.session_state:
+        suggestions = st.session_state.co_tasker_suggestions
+        idx = st.session_state.get("co_tasker_index", 0)
+        stats = st.session_state.get("co_tasker_stats", {"accepted": 0, "edited": 0, "skipped": 0})
+
+        if idx < len(suggestions):
+            s = suggestions[idx]
+            pet_name = s["pet_name"]
+            pet_obj = next(
+                (p for p in st.session_state.pets if p.get_name() == pet_name),
+                st.session_state.pets[0],
+            )
+
+            st.markdown(f"**Suggestion {idx + 1} of {len(suggestions)}** — for **{pet_name}**")
+
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Task", s["description"])
+            c2.metric("Duration", f"{s['duration']} min")
+            c3.metric("Priority", s["priority"].upper())
+            c4, c5 = st.columns(2)
+            c4.metric("Date", s["date"])
+            c5.metric("Start Time", s["start_time"])
+
+            if not st.session_state.get("co_tasker_editing", False):
+                btn1, btn2, btn3 = st.columns(3)
+                with btn1:
+                    if st.button("✓ Accept", key=f"accept_{idx}"):
+                        task = PetCareTask(
+                            s["description"], int(s["duration"]), s["priority"], pet_obj,
+                            date=Date.fromisoformat(s["date"]),
+                            start_time=Time.fromisoformat(s["start_time"]),
+                        )
+                        st.session_state.tasks.append(task)
+                        st.session_state.co_tasker_stats["accepted"] += 1
+                        st.session_state.co_tasker_index += 1
+                        st.session_state.co_tasker_editing = False
+                        st.rerun()
+                with btn2:
+                    if st.button("✏️ Edit", key=f"edit_{idx}"):
+                        st.session_state.co_tasker_editing = True
+                        st.rerun()
+                with btn3:
+                    if st.button("⏭ Skip", key=f"skip_{idx}"):
+                        st.session_state.co_tasker_stats["skipped"] += 1
+                        st.session_state.co_tasker_index += 1
+                        st.session_state.co_tasker_editing = False
+                        st.rerun()
+
+            if st.session_state.get("co_tasker_editing", False):
+                st.markdown("**Edit this suggestion:**")
+                with st.form("edit_suggestion_form"):
+                    edit_desc = st.text_input("Task title", value=s["description"])
+                    edit_dur = st.number_input("Duration (minutes)", min_value=1, max_value=240, value=int(s["duration"]))
+                    edit_pri = st.selectbox("Priority", ["low", "med", "high"], index=["low", "med", "high"].index(s["priority"]))
+                    edit_date = st.date_input("Date", value=Date.fromisoformat(s["date"]))
+                    h, m = map(int, s["start_time"].split(":"))
+                    edit_time = st.time_input("Start time", value=Time(h, m))
+                    submitted = st.form_submit_button("Save Edited Task")
+                    cancelled = st.form_submit_button("Cancel")
+
+                if submitted:
+                    task = PetCareTask(edit_desc, int(edit_dur), edit_pri, pet_obj,
+                                      date=edit_date, start_time=edit_time)
+                    st.session_state.tasks.append(task)
+                    st.session_state.co_tasker_stats["edited"] += 1
+                    st.session_state.co_tasker_index += 1
+                    st.session_state.co_tasker_editing = False
+                    st.rerun()
+                if cancelled:
+                    st.session_state.co_tasker_editing = False
+                    st.rerun()
+
+        else:
+            # All suggestions reviewed — show final stats
+            total = stats["accepted"] + stats["edited"] + stats["skipped"]
+            if total > 0:
+                rate = (stats["accepted"] + stats["edited"]) / total * 100
+                st.success(f"All {total} suggestions reviewed! Acceptance rate: **{rate:.0f}%**")
+                m1, m2, m3, m4 = st.columns(4)
+                m1.metric("Accepted", stats["accepted"])
+                m2.metric("Edited & Saved", stats["edited"])
+                m3.metric("Skipped", stats["skipped"])
+                m4.metric("Acceptance Rate", f"{rate:.0f}%")
+                st.caption("Accepted and edited tasks have been added to your task list below.")
+
+st.divider()
 
 st.markdown("### Tasks")
 st.caption("Add a few tasks. In your final version, these should feed into your scheduler.")
@@ -102,7 +210,6 @@ with row2_col1:
 with row2_col2:
     task_date = st.date_input("Date", value=Date.today())
 with row2_col3:
-    from datetime import time as Time
     task_time = st.time_input("Start time", value=Time(8, 0))
 
 if st.button("Add task"):
