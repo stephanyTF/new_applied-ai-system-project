@@ -7,49 +7,220 @@ from datetime import date as Date, time as Time
 
 
 
-st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
+st.set_page_config(page_title="PawPal+", page_icon="🍃", layout="centered")
 
-st.title("🐾 PawPal+")
+st.markdown("""
+<style>
+/* ── Fonts ─────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Nunito', sans-serif !important;
+}
+
+/* ── Page background — night sky ────────────────────────── */
+.stApp {
+    background-color: #1E1B2E;
+    background-image:
+        radial-gradient(circle at 12% 18%, #3a2f5540 90px, transparent 90px),
+        radial-gradient(circle at 78% 12%, #2e3d2f40 70px, transparent 70px),
+        radial-gradient(circle at 55% 82%, #2a2f4040 80px, transparent 80px),
+        radial-gradient(circle at 6%  70%, #3b2e4040 60px, transparent 60px);
+}
+
+/* ── Main content card ───────────────────────────────────── */
+section.main > div {
+    background: rgba(30, 27, 46, 0.85);
+    border-radius: 24px;
+    padding: 2rem 2.5rem;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.35);
+}
+
+/* ── Title ───────────────────────────────────────────────── */
+h1 {
+    font-weight: 800 !important;
+    color: #A8D8A8 !important;
+    letter-spacing: -0.5px;
+}
+
+/* ── Subheaders ──────────────────────────────────────────── */
+h2, h3 {
+    font-weight: 700 !important;
+    color: #C5E8C5 !important;
+}
+
+/* ── Body text & markdown ────────────────────────────────── */
+p, .stMarkdown p, li {
+    color: #F2EBD9 !important;
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.stButton > button {
+    font-weight: 700 !important;
+    border-radius: 50px !important;
+    border: 2px solid #6BAE7A !important;
+    background: linear-gradient(135deg, #4E8C62, #3A7554) !important;
+    color: #F2EBD9 !important;
+    padding: 0.45rem 1.4rem !important;
+    transition: all 0.18s ease !important;
+    box-shadow: 0 3px 14px rgba(106,174,122,0.30) !important;
+}
+.stButton > button:hover {
+    transform: translateY(-2px) scale(1.03) !important;
+    box-shadow: 0 6px 22px rgba(106,174,122,0.45) !important;
+    background: linear-gradient(135deg, #6BAE7A, #4E8C62) !important;
+    color: #fff !important;
+}
+
+/* ── Inputs ──────────────────────────────────────────────── */
+input[type="text"], input[type="number"],
+textarea, [data-baseweb="input"] input {
+    border-radius: 14px !important;
+    border: 1.5px solid #4A4560 !important;
+    background: #2A2640 !important;
+    color: #F2EBD9 !important;
+}
+input[type="text"]:focus, input[type="number"]:focus {
+    border-color: #A8D8A8 !important;
+    box-shadow: 0 0 0 3px rgba(168,216,168,0.18) !important;
+}
+
+/* ── Select boxes ────────────────────────────────────────── */
+.stSelectbox > div > div,
+[data-baseweb="select"] > div {
+    border-radius: 14px !important;
+    border: 1.5px solid #4A4560 !important;
+    background: #2A2640 !important;
+    color: #F2EBD9 !important;
+}
+
+/* ── Multiselect ─────────────────────────────────────────── */
+[data-baseweb="multi-select"] {
+    border-radius: 14px !important;
+    background: #2A2640 !important;
+    border: 1.5px solid #4A4560 !important;
+}
+
+/* ── Date / time pickers ─────────────────────────────────── */
+[data-baseweb="datepicker"] input,
+[data-baseweb="time-picker"] input {
+    background: #2A2640 !important;
+    color: #F2EBD9 !important;
+    border-radius: 14px !important;
+    border: 1.5px solid #4A4560 !important;
+}
+
+/* ── Expanders ───────────────────────────────────────────── */
+.streamlit-expanderHeader {
+    font-weight: 700 !important;
+    color: #C5E8C5 !important;
+    background: #2A2640 !important;
+    border-radius: 14px !important;
+}
+.streamlit-expanderContent {
+    background: #252238 !important;
+    border-radius: 0 0 14px 14px !important;
+    color: #F2EBD9 !important;
+}
+
+/* ── Alerts ──────────────────────────────────────────────── */
+.stAlert {
+    border-radius: 16px !important;
+    background: #2A2640 !important;
+}
+.stAlert p { color: #F2EBD9 !important; }
+
+/* ── Metrics ─────────────────────────────────────────────── */
+[data-testid="metric-container"] {
+    background: #2A2640;
+    border-radius: 16px;
+    padding: 0.6rem 1rem;
+    border: 1.5px solid #4A4560;
+}
+[data-testid="metric-container"] label,
+[data-testid="metric-container"] div {
+    color: #C5E8C5 !important;
+}
+[data-testid="stMetricValue"] {
+    color: #F2EBD9 !important;
+}
+
+/* ── Tables ──────────────────────────────────────────────── */
+table {
+    border-radius: 16px !important;
+    overflow: hidden !important;
+}
+thead tr th {
+    background: #2F2B50 !important;
+    color: #C5E8C5 !important;
+    font-weight: 700 !important;
+}
+tbody tr td {
+    color: #F2EBD9 !important;
+}
+tbody tr:nth-child(even) td {
+    background: #252238 !important;
+}
+tbody tr:nth-child(odd) td {
+    background: #2A2640 !important;
+}
+
+/* ── Divider ─────────────────────────────────────────────── */
+hr {
+    border-color: #4A4560 !important;
+}
+
+/* ── Spinner ─────────────────────────────────────────────── */
+.stSpinner > div {
+    border-top-color: #A8D8A8 !important;
+}
+
+/* ── Caption ─────────────────────────────────────────────── */
+.stCaption, [data-testid="stCaptionContainer"] p {
+    color: #B8A99A !important;
+    font-style: italic;
+}
+
+/* ── Form submit button ──────────────────────────────────── */
+[data-testid="stFormSubmitButton"] > button {
+    border-radius: 50px !important;
+    border: 2px solid #6BAE7A !important;
+    background: linear-gradient(135deg, #4E8C62, #3A7554) !important;
+    color: #F2EBD9 !important;
+    font-weight: 700 !important;
+}
+
+/* ── Sidebar (if used) ───────────────────────────────────── */
+[data-testid="stSidebar"] {
+    background: #2A2640 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.title("🍃 PawPal+ 🐕🐈‍⬛🐢🐟🐹")
 
 st.markdown(
     """
-Welcome to the PawPal+ starter app.
+🌿 Welcome to **PawPal+** — your cozy pet care planner!
 
-This file is intentionally thin. It gives you a working Streamlit app so you can start quickly,
-but **it does not implement the project logic**. Your job is to design the system and build it.
-
-Use this app as your interactive demo once your backend classes/functions exist.
+Plan your day, keep your animal companions happy, and let the Pet Co Tasker suggest what to do next.
 """
 )
 
-with st.expander("Scenario", expanded=True):
-    st.markdown(
-        """
-**PawPal+** is a pet care planning assistant. It helps a pet owner plan care tasks
-for their pet(s) based on constraints like time, priority, and preferences.
+#st.header("🏡 About PawPal+")
+with st.expander("🏡 About PawPal+",expanded=False):
+    st.write(
+            """
+    **PawPal+** is your personal pet care planning assistant.
 
-You will design and implement the scheduling logic and connect it to this Streamlit UI.
-"""
-    )
-
-with st.expander("What you need to build", expanded=True):
-    st.markdown(
-        """
-
-At minimum, your system should:
-
-[MermaidChart: 3c5df3d2-97cb-455e-8e47-a43e262279b1]
-- Represent pet care tasks (what needs to happen, how long it takes, priority)
-- Represent the pet and the owner (basic info and preferences)
-- Build a plan/schedule for a day that chooses and orders tasks based on constraints
-- Explain the plan (why each task was chosen and when it happens)
-"""
-    )
+    Tell it about your pets, add care tasks, and let it build a cozy daily schedule — prioritized just for you and your animals. Use the AI Co-Tasker to get smart suggestions without lifting a paw. 🐾
+    """
+        )
 
 st.divider()
 
 
-st.subheader("Quick Demo Inputs (UI only)")
+st.subheader("🏠 Your Info")
 
 owner_name = st.text_input("Owner name", placeholder="Enter your name")
 time_available = st.number_input("Time available per day (minutes)", min_value=1, max_value=1440, placeholder="e.g. 180")
@@ -194,8 +365,8 @@ else:
 
 st.divider()
 
-st.markdown("### Tasks")
-st.caption("Add a few tasks. In your final version, these should feed into your scheduler.")
+st.markdown("### 📋 Tasks")
+st.caption("Add care tasks for your pets — they'll be used to build the daily schedule.")
 
 if "tasks" not in st.session_state:
     st.session_state.tasks = []
@@ -259,7 +430,7 @@ else:
 
 st.divider()
 
-st.subheader("Build Schedule")
+st.subheader("🗓️ Build Your Schedule")
 
 all_pet_names = [p.get_name() for p in st.session_state.pets]
 filter_pets = st.multiselect("Filter by pet", all_pet_names, default=all_pet_names)
