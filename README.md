@@ -48,7 +48,7 @@ TFs should:
 
 ## Phase 1: Functionality Extension (Assign)
 TFs should:
-- [x] Identify  new AI feature: (Fine-Tuned / Specialized Model) For a pet task scheduler, having the app be able to automatically make suggested tasks based on what type of pet the user enters.
+- [x] Identify  new AI feature: **(Fine-Tuned / Specialized Model)** For a pet task scheduler, having an AI assistant be able to automatically make suggested tasks based on what type of pet the user enters.
 - [x] Verify the feature is actually used in logic
 - [x] Detect shallow or fake integrations
 - [x] Trace data flow end‑to‑end
