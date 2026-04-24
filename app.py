@@ -94,7 +94,12 @@ else:
             with st.spinner("Co-Tasker is thinking..."):
                 from co_tasker import generate_pet_tasks
                 api_key = st.secrets.get("GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY"))
-                suggestions = generate_pet_tasks(st.session_state.pets, api_key=api_key)
+                pets_in_schedule = {task.pet for task in st.session_state.get("tasks", [])}
+                recent_pet_list = [pet for pet in st.session_state.pets if pet not in pets_in_schedule]
+                if not recent_pet_list:
+                    st.info("All pets already have tasks in the schedule.")
+                    st.stop()
+                suggestions = generate_pet_tasks(recent_pet_list, api_key=api_key)
             st.session_state.co_tasker_suggestions = suggestions
             st.session_state.co_tasker_index = 0
             st.session_state.co_tasker_stats = {"accepted": 0, "edited": 0, "skipped": 0}

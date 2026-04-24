@@ -1,0 +1,24 @@
+---
+config:
+  theme: dark
+id: 422cc2f8-b13d-481f-8708-ca5205ee490e
+---
+graph TD
+  A[User Input] -->|Pet Names & Types| B[Co-Tasker Agent]
+  C[Pet Database] -->|Pet Information| B
+  B -->|Generate Tasks| D[Task 1: Generic Task]
+  B -->|Generate Tasks| E[Task 2: Pet-Specific Task]
+  B -->|Generate Tasks| F[Task 3: Pet-Specific Task]
+  D --> G[Display Task to User]
+  E --> G
+  F --> G
+  G -->|User Decision| H{Action}
+  H -->|Accept| I[Task Saved]
+  H -->|Edit| J[Modify Task Details]
+  H -->|Delete| K[Task Discarded]
+  J --> I
+  I --> L[Move to Next Pet]
+  K --> L
+  L -->|More Pets?| M{End}
+  M -->|Yes| B
+  M -->|No| N[All Tasks Complete]
